@@ -111,5 +111,92 @@ jupyter notebook notebooks/
 
 Created 15+ features across three categories:
 
-**Time-Based Features:**
-- `days_policy_to_i
+Time-Based Features:
+
+days_policy_to_incident: Days between policy start and claim
+quick_claim: Binary flag for claims filed <90 days
+very_quick_claim: Binary flag for claims filed <30 days
+
+Financial Features:
+
+claim_to_premium_ratio: Total claim ÷ Annual premium (strongest predictor)
+extreme_claim_ratio: Binary flag for ratios >5x
+high_value_claim: Binary flag for claims >$50k
+no_witnesses: No witnesses present
+no_police: No police report filed
+no_authority: No authority contacted
+multi_vehicle_no_witness: Multiple vehicles but no witnesses
+
+Composite Features:
+
+red_flag_score: Sum of suspicious indicators
+injury_pct, property_pct, vehicle_pct: Claim composition breakdown
+
+3. Model Selection
+   Trained and compared three models:
+ModelAccuracyPrecisionRecallF1-ScoreUse CaseLogistic Regression76%82%68%74%Baseline, interpretableRandom Forest81%87%72%79%Production candidateXGBoost83%89%74%81%Best performance
+Why Precision Over Accuracy?
+
+Baseline fraud rate: 24.7%
+A "predict all legitimate" model would achieve 75.3% accuracy but catch zero fraud
+Precision measures: When we flag fraud, how often are we right?
+High precision = fewer wasted investigations
+
+4. Feature Importance
+Top 5 Predictive Features:
+
+claim_to_premium_ratio (0.28 importance)
+total_claim_amount (0.19 importance)
+collision_type (0.14 importance)
+days_policy_to_incident (0.12 importance)
+policy_annual_premium (0.09 importance)
+Surprising Non-Predictors:
+
+Quick claim flags (inverse correlation)
+Witness presence (inverse correlation)
+Authority contact (inverse correlation)
+
+
+Key Insights
+Insight 1: Fraudsters Are Patient
+
+Finding: Claims filed >90 days after policy start show 24.8% fraud rate
+Comparison: Quick claims (<90 days) show only 12.5% fraud rate
+Implication: Sophisticated fraudsters create realistic timelines to avoid suspicion
+
+Insight 2: Financial Ratios Are King
+
+Finding: Claims >5x annual premium show 26.8% fraud rate
+Comparison: Normal ratios show 9.2% fraud rate
+Lift: 2.9x more likely to be fraud
+Why it matters: You can fake timelines and witnesses, but not the math
+
+Insight 3: Witnesses Can Be Fake
+
+Finding: Claims WITH witnesses show 26.2% fraud rate
+Comparison: Claims WITHOUT witnesses show 20.1% fraud rate
+Explanation: Fraudsters bring accomplices as fake witnesses
+
+Insight 4: Rear-End Collisions Are Suspicious
+
+Finding: Rear-end collisions show 31.2% fraud rate
+Comparison: Unknown collisions show 9.0% fraud rate
+Why: Easiest collision type to stage ("I stopped suddenly")
+
+Insight 5: Calling Authorities Shows Confidence
+
+Finding: Claims where authorities were contacted show 26.5% fraud rate
+Comparison: No authority contacted shows 6.6% fraud rate
+Interpretation: Sophisticated fraudsters call police because their staged accidents look legitimate
+
+Business Metrics
+Cost-Benefit Analysis:
+
+True Positives: 36 fraud cases caught → $1.87M saved
+False Positives: 9 cases → $4,500 investigation cost
+False Negatives: 13 missed fraud cases → $676K lost
+Net Impact: $1.19M saved on 200-case test set
+
+Scaling to Annual Volume (1,000 claims):
+
+Net savings: $2.06M/year
