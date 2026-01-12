@@ -1,4 +1,4 @@
-# Insurance Fraud Detection System 🕵️
+# Insurance Fraud Detection System 
 
 A machine learning system that detects insurance fraud by analyzing claim patterns, with a focus on identifying sophisticated fraud that traditional rule-based systems miss.
 
